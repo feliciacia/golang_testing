@@ -1,8 +1,10 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -28,5 +30,19 @@ func TestGetWeather(t *testing.T) {
 			},
 			expectedError: nil,
 		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			defer test.server.Close()
+			resp, err := GetWeather(test.server.URL)
+
+			if !reflect.DeepEqual(resp, test.response) {
+				t.Errorf("FAILED: expected %v go %v\n", test.response, resp)
+			}
+			if !errors.Is(err, test.expectedError) {
+				t.Errorf("Expected error FAILED: expected %v got %v\n", test.expectedError, err)
+			}
+		})
 	}
 }
